@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "notepad-on-tauri",
+  "productName": "file-list-on-tauri",
   "version": "0.1.0",
-  "identifier": "com.warabenture.notepad-on-tauri",
+  "identifier": "com.warabenture.file-list-on-tauri",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "notepad-on-tauri",
+        "title": "ファイル一覧 on Tauri",
         "width": 800,
         "height": 600
       }

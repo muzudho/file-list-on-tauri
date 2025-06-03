@@ -19,14 +19,8 @@ async function on_open_button_clicked() {
   filePathVM.value = filePath
 }
 
-async function on_save_button_clicked() {
-  console.log("［Save］ボタンを押したぜ。")
-  // 書き込むためには、📄 `src-tauri/capabilities/default.json` ファイルの `permissions` を設定する必要がある。
-  await writeTextFile(filePathVM.value, textVM.value);
-}
-
-async function on_load_button_clicked() {
-  console.log("［Load］ボタンを押したぜ。")
+async function on_refresh_button_clicked() {
+  console.log("［Refresh］ボタンを押したぜ。")
   const contents = await readTextFile(filePathVM.value);  
   textVM.value = contents
 }
@@ -39,8 +33,7 @@ async function on_load_button_clicked() {
       <button @click="on_open_button_clicked" style="width:20%; height: 10vh;">Open</button>
     </div>
     <div class="row">
-      <button @click="on_save_button_clicked" style="width:50%; height: 10vh;">Save</button>
-      <button @click="on_load_button_clicked" style="width:50%; height: 10vh;">Load</button>
+      <button @click="on_refresh_button_clicked" style="width:100%; height: 10vh;">Refresh</button>
     </div>
     <textarea style="width:100%; height:80vh;" v-model="textVM"></textarea>
   </main>
