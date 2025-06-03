@@ -5,7 +5,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import * as path from '@tauri-apps/api/path';
 
 const dirPathVM = ref("C:\\Users\\muzud\\OneDrive\\ドキュメント\\temp");
-const textVM = ref("");
+const itemsVM = ref([]);
 
 async function on_open_button_clicked() {
   console.log("［Open］ボタンを押したぜ。")
@@ -16,16 +16,17 @@ async function on_open_button_clicked() {
     defaultPath: dirPathVM.value
   });
   dirPathVM.value = dirPath
-  textVM.value = await fetch_file_names();
+  itemsVM.value = await fetch_file_names();
 }
 
 async function on_refresh_button_clicked() {
   console.log("［Refresh］ボタンを押したぜ。")
-  textVM.value = await fetch_file_names();
+  itemsVM.value = await fetch_file_names();
 }
 
+// Tauriのコマンドを呼び出し。
+// 配列を返す。
 async function fetch_file_names() {
-  // Tauriのコマンドを呼び出し
   return await invoke('get_file_names', { dirPath: dirPathVM.value });
 }
 </script>
@@ -39,7 +40,9 @@ async function fetch_file_names() {
     <div class="row">
       <button @click="on_refresh_button_clicked" style="width:100%; height: 10vh;">Refresh</button>
     </div>
-    <textarea style="width:100%; height:80vh;" v-model="textVM"></textarea>
+    <select style="width:100%; height:80vh;" size="5">
+      <option v-for="item in itemsVM" :key="item" :value="item">{{ item }}</option>
+    </select>
   </main>
 </template>
 
