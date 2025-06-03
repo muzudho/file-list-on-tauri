@@ -2,34 +2,38 @@
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from '@tauri-apps/plugin-dialog';
-import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import * as path from '@tauri-apps/api/path';
 
-const filePathVM = ref("C:\\Users\\muzud\\OneDrive\\ドキュメント\\temp");
+const dirPathVM = ref("C:\\Users\\muzud\\OneDrive\\ドキュメント\\temp");
 const textVM = ref("");
 
 async function on_open_button_clicked() {
   console.log("［Open］ボタンを押したぜ。")
   // Open a dialog
-  const filePath = await open({
+  const dirPath = await open({
     multiple: false,
-    directory: false,
-    defaultPath: filePathVM.value
+    directory: true,  // ディレクトリーを開く。
+    defaultPath: dirPathVM.value
   });
-  filePathVM.value = filePath
+  dirPathVM.value = dirPath
+  textVM.value = await fetch_file_names();
 }
 
 async function on_refresh_button_clicked() {
   console.log("［Refresh］ボタンを押したぜ。")
-  const contents = await readTextFile(filePathVM.value);  
-  textVM.value = contents
+  textVM.value = await fetch_file_names();
+}
+
+async function fetch_file_names() {
+  // Tauriのコマンドを呼び出し
+  return await invoke('get_file_names', { dirPath: dirPathVM.value });
 }
 </script>
 
 <template>
   <main class="container">
     <div class="row">
-      <input style="width:80%; height: 10vh;" :value="filePathVM">
+      <input style="width:80%; height: 10vh;" :value="dirPathVM">
       <button @click="on_open_button_clicked" style="width:20%; height: 10vh;">Open</button>
     </div>
     <div class="row">
