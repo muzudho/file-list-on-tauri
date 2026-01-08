@@ -2,12 +2,17 @@
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from '@tauri-apps/plugin-dialog';
-import * as path from '@tauri-apps/api/path';
 
 const dirPathVM = ref("C:\\Users\\muzud\\OneDrive\\ドキュメント\\temp");
-const itemsVM = ref([]);
+const itemsVM = ref<string[]>([]);  // 初期値は空のstring配列
 
-async function on_open_button_clicked() {
+// RustのResult<Vec<String>, String>に対応する型
+interface FileNamesAndResult {
+  Ok?: string[]; // 成功ケース
+  Err?: string;  // エラーケース
+}
+
+async function onOpenButtonClicked() {
   console.log("［Open］ボタンを押したぜ。")
   // Open a dialog
   const dirPath = await open({
@@ -15,19 +20,24 @@ async function on_open_button_clicked() {
     directory: true,  // ディレクトリーを開く。
     defaultPath: dirPathVM.value
   });
-  dirPathVM.value = dirPath
-  itemsVM.value = await fetch_file_names();
+  dirPathVM.value = dirPath ?? "";  // dirPath がヌルなら空文字列に変換。
+  itemsVM.value = await fetchFileNames(); 
 }
 
-async function on_refresh_button_clicked() {
+async function onRefreshButtonClicked() {
   console.log("［Refresh］ボタンを押したぜ。")
-  itemsVM.value = await fetch_file_names();
+  itemsVM.value = await fetchFileNames();
 }
 
 // Tauriのコマンドを呼び出し。
 // 配列を返す。
-async function fetch_file_names() {
-  return await invoke('get_file_names', { dirPath: dirPathVM.value });
+async function fetchFileNames(): Promise<string[]> {
+  const file_names_and_result = await invoke<FileNamesAndResult>('get_file_names', { dirPath: dirPathVM.value });
+  if (file_names_and_result.Ok) {
+    return file_names_and_result.Ok; // string[] を返す
+  }
+  console.error(file_names_and_result.Err);
+  return [];  // エラー時は空配列を返す
 }
 </script>
 
@@ -35,10 +45,10 @@ async function fetch_file_names() {
   <main class="container">
     <div class="row">
       <input style="width:80%; height: 10vh;" :value="dirPathVM">
-      <button @click="on_open_button_clicked" style="width:20%; height: 10vh;">Open</button>
+      <button @click="onOpenButtonClicked" style="width:20%; height: 10vh;">Open</button>
     </div>
     <div class="row">
-      <button @click="on_refresh_button_clicked" style="width:100%; height: 10vh;">Refresh</button>
+      <button @click="onRefreshButtonClicked" style="width:100%; height: 10vh;">Refresh</button>
     </div>
     <select style="width:100%; height:80vh;" size="5">
       <option v-for="item in itemsVM" :key="item" :value="item">{{ item }}</option>
